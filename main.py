@@ -83,9 +83,6 @@ st.altair_chart(
 
 
 
-
-
-
 # Count the number of entries in the table
 from sqlalchemy import func
 conn = engine.connect()
@@ -256,6 +253,30 @@ df['dates'] = pd.to_datetime(df['dates'])
 df['day_of_week'] = df['dates'].dt.day_name()
 df['count'] = 1
 df = df.groupby('day_of_week')['count'].sum()
+st.bar_chart(df)
+
+
+
+# Plot the hour the application was submitted.
+st.title('Hour of the day the application was submitted')
+st.write('''
+The hour of the day the application was submitted.
+''')
+
+# Get the hours from the table that is stored in the submitted_at field.
+from sqlalchemy import extract
+conn = engine.connect()
+s = select([meta.tables['api_appform'].c.submitted_at])
+result = conn.execute(s)
+hours = [x['submitted_at'].hour for x in result]
+
+
+# Plot the data
+df = pd.DataFrame(hours, columns=['hours'])
+print("df:", df)
+df['count'] = 1
+df = df.groupby('hours')['count'].sum()
+print("df:", df)
 st.bar_chart(df)
 
 
