@@ -141,9 +141,9 @@ st.bar_chart(df)
 
 
 # Plot the hours type from the table.
-st.title('Hours type of applicants')
+st.title('Hours applicants want to spend')
 st.write('''
-The hours type of applicants.
+The hours applicants want to spend.
 ''')
 
 from sqlalchemy import func
@@ -159,9 +159,9 @@ st.bar_chart(df)
 
 
 # Plot the semester type from the table.
-st.title('Semester type of applicants')
+st.title('Semester of applicants')
 st.write('''
-The semester type of applicants.
+The semester of applicants.
 ''')
 
 from sqlalchemy import func
@@ -177,9 +177,9 @@ st.bar_chart(df)
 
 
 # Plot the degree type from the table.
-st.title('Degree type of applicants')
+st.title('Degree of applicants')
 st.write('''
-The degree type of applicants.
+The degree of applicants.
 ''')
 
 from sqlalchemy import func
@@ -195,9 +195,9 @@ st.bar_chart(df)
 
 
 # Plot the university type from the table.
-st.title('University type of applicants')
+st.title('University of applicants')
 st.write('''
-The university type of applicants.
+The university of applicants.
 ''')
 
 from sqlalchemy import func
