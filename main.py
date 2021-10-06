@@ -43,12 +43,47 @@ if False:
         print(column['name'], column['type'])
 
 
-# Plot the number of entries in the table api_appform over time
-# using streamlit
-st.title('Number of applications over time')
+# Plot the total number of applications over time
+st.title('Total number of applications received over time')
 st.write('''
-The number of applications received over time.
+The total number of applications received over time.
 ''')
+
+import datetime
+
+# Get the dates from the table that is stored in the submitted_at field.
+from sqlalchemy import extract
+conn = engine.connect()
+s = select([meta.tables['api_appform'].c.submitted_at])
+result = conn.execute(s)
+dates = [x['submitted_at'] for x in result]
+
+df = pd.DataFrame(dates, columns=['dates'])
+print("df:", df)
+totals = 0
+date_counts_list = []
+for date in df['dates']:
+    df['dates'] = pd.to_datetime(df['dates'])
+    totals += 1
+    date_counts_list.append((date, totals))
+
+
+# Plot the total number of applications over time
+df = pd.DataFrame(date_counts_list, columns=['dates', 'count'])
+print("df:", df)
+# convert the dates to strings.
+df['dates'] = df['dates'].dt.strftime('%d. %H:%M')
+print("df:", df)
+
+# Plot the data with the dates on the x axis and count on y
+st.altair_chart(
+    alt.Chart(df).mark_line().encode(
+        x='dates',
+        y='count'))
+
+
+
+
 
 
 # Count the number of entries in the table
@@ -70,28 +105,6 @@ result = conn.execute(s)
 dates = [x['submitted_at'] for x in result]
 
 
-# Print the application dates
-st.write('Application dates')
-st.write(dates)
-
-# Plot the dates using streamlit
-import pandas as pd
-df = pd.DataFrame(dates, columns=['dates'])
-df['count'] = 1
-df['dates'] = pd.to_datetime(df['dates'])
-df = df.set_index('dates')
-df = df.resample('D').sum()
-st.line_chart(df)
-
-
-# Plot the number of applications received per day
-st.title('Number of applications received per day')
-st.write('''
-The number of applications received per day.
-''')
-st.line_chart(df)
-
-
 # Plot gender from the table.
 st.title('Gender of applicants')
 st.write('''
@@ -108,7 +121,6 @@ df = pd.DataFrame(genders, columns=['gender'])
 df['count'] = 1
 df = df.groupby('gender')['count'].sum()
 st.bar_chart(df)
-
 
 # Plot age from the table.
 st.title('Age of applicants')
@@ -246,58 +258,5 @@ df['count'] = 1
 df = df.groupby('day_of_week')['count'].sum()
 st.bar_chart(df)
 
-
-# Plot the total number of applications over time
-st.title('Total number of applications received over time')
-st.write('''
-The total number of applications received over time.
-''')
-
-import datetime
-
-# Get the dates from the table that is stored in the submitted_at field.
-from sqlalchemy import extract
-conn = engine.connect()
-s = select([meta.tables['api_appform'].c.submitted_at])
-result = conn.execute(s)
-dates = [x['submitted_at'] for x in result]
-
-df = pd.DataFrame(dates, columns=['dates'])
-print("df:", df)
-totals = 0
-date_counts_list = []
-for date in df['dates']:
-    df['dates'] = pd.to_datetime(df['dates'])
-    totals += 1
-    date_counts_list.append((date, totals))
-
-
-# Plot the total number of applications over time
-df = pd.DataFrame(date_counts_list, columns=['dates', 'count'])
-print("df:", df)
-# convert the dates to strings.
-df['dates'] = df['dates'].dt.strftime('%d. %H:%M')
-print("df:", df)
-
-# Plot the data with the dates on the x axis and count on y
-st.altair_chart(
-    alt.Chart(df).mark_line().encode(
-        x='dates',
-        y='count'))
-
-
-
-# Example plot to show of the streamlit line_chart
-st.title('Example')
-st.write('''
-Example of a line chart.
-''')
-
-data = pd.DataFrame(
-    np.random.randn(20, 3),
-    columns=['a', 'b', 'c'])
-
-st.line_chart(data)
-print("data:", data)
 
 
