@@ -99,6 +99,60 @@ st.write(f'''
 Number of applications received: {count}
 ''')
 
+
+# Count the number of nationalities.
+# Get the nationalities from the table that is stored in the nationality field.
+from sqlalchemy import extract
+conn = engine.connect()
+s = select([meta.tables['api_appform'].c.nationality])
+result = conn.execute(s)
+nationalities = [x['nationality'] for x in result]
+
+# Count the number of unique nationalities.
+import pandas as pd
+df = pd.DataFrame(nationalities, columns=['nationalities'])
+df['count'] = 1
+df = df.groupby('nationalities')['count'].sum()
+
+num_nationalities = len(df)
+
+st.write(f'''
+Number of nationalities: {num_nationalities}
+''')
+
+
+# Count the number of languages.
+# Get the languages from the table that is stored in the languages field.
+# Each participant can have multiple languages that are stored as a string
+# with the languages sepearted as a column, e.g. "German,English"
+from sqlalchemy import extract
+conn = engine.connect()
+s = select([meta.tables['api_appform'].c.languages])
+result = conn.execute(s)
+languages = [x['languages'] for x in result]
+
+# Split languages on comma.
+languages_list = []
+for language in languages:
+    language_list = language.split(',')
+    languages_list.extend(language_list)
+
+# Count the number of unique languages.
+import pandas as pd
+df = pd.DataFrame(languages_list, columns=['languages'])
+df['count'] = 1
+df = df.groupby('languages')['count'].sum()
+
+num_languages = len(df)
+
+st.write(f'''
+Number of languages: {num_languages}
+''')
+
+
+
+
+
 # Get the dates from the table that is stored in the submitted_at field.
 from sqlalchemy import extract
 conn = engine.connect()
@@ -233,6 +287,27 @@ df = pd.DataFrame(languages, columns=['languages'])
 df['count'] = 1
 df = df.groupby('languages')['count'].sum()
 st.bar_chart(df)
+
+
+# Plot the nationalities of the applicants.
+st.title('Nationalities of applicants')
+st.write('''
+The nationalities of applicants.
+''')
+
+from sqlalchemy import func
+conn = engine.connect()
+s = select([meta.tables['api_appform'].c.nationality])
+result = conn.execute(s)
+nationalities = [x['nationality'].split(',') for x in result]
+
+nationalities = [item for sublist in nationalities for item in sublist]
+
+df = pd.DataFrame(nationalities, columns=['nationality'])
+df['count'] = 1
+df = df.groupby('nationality')['count'].sum()
+st.bar_chart(df)
+
 
 
 # Plot the number of applications per day of the week
