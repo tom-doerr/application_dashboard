@@ -24,6 +24,8 @@ from sqlalchemy import MetaData
 meta = MetaData()
 meta.reflect(bind=engine)
 
+TIME_ZONE_DIFF = 2
+
 if False:
     for table in meta.tables:
         print(table)
@@ -71,6 +73,12 @@ for date in df['dates']:
 df = pd.DataFrame(date_counts_list, columns=['dates', 'count'])
 # convert the dates to strings.
 df['dates'] = df['dates'].dt.strftime('%d. %H:%M')
+
+# Add the value in TIME_ZONE_DIFF as hours to all values in df.dates.
+df['dates'] = df['dates'].apply(lambda x: datetime.datetime.strptime(x, '%d. %H:%M') + datetime.timedelta(hours=TIME_ZONE_DIFF))
+
+
+
 
 # Plot the data with the dates on the x axis and count on y
 st.altair_chart(
@@ -265,13 +273,18 @@ from sqlalchemy import extract
 conn = engine.connect()
 s = select([meta.tables['api_appform'].c.submitted_at])
 result = conn.execute(s)
+
 hours = [x['submitted_at'].hour for x in result]
+
+# Add the value in TIME_ZONE_DIFF as hours to all values in hours.
+hours = [x + TIME_ZONE_DIFF for x in hours]
 
 
 # Plot the data
 df = pd.DataFrame(hours, columns=['hours'])
 df['count'] = 1
 df = df.groupby('hours')['count'].sum()
+
 st.bar_chart(df)
 
 
