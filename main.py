@@ -59,7 +59,6 @@ result = conn.execute(s)
 dates = [x['submitted_at'] for x in result]
 
 df = pd.DataFrame(dates, columns=['dates'])
-print("df:", df)
 totals = 0
 date_counts_list = []
 for date in df['dates']:
@@ -70,10 +69,8 @@ for date in df['dates']:
 
 # Plot the total number of applications over time
 df = pd.DataFrame(date_counts_list, columns=['dates', 'count'])
-print("df:", df)
 # convert the dates to strings.
 df['dates'] = df['dates'].dt.strftime('%d. %H:%M')
-print("df:", df)
 
 # Plot the data with the dates on the x axis and count on y
 st.altair_chart(
@@ -273,10 +270,8 @@ hours = [x['submitted_at'].hour for x in result]
 
 # Plot the data
 df = pd.DataFrame(hours, columns=['hours'])
-print("df:", df)
 df['count'] = 1
 df = df.groupby('hours')['count'].sum()
-print("df:", df)
 st.bar_chart(df)
 
 
