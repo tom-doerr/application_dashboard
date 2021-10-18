@@ -62,6 +62,10 @@ result = conn.execute(s)
 dates = [x['submitted_at'] for x in result]
 
 df = pd.DataFrame(dates, columns=['dates'])
+# Sort the df by dates.
+df['dates'] = pd.to_datetime(df['dates'])
+df = df.sort_values(by=['dates'])
+
 totals = 0
 date_counts_list = []
 for date in df['dates']:
