@@ -13,19 +13,28 @@ import sqlalchemy
 from sqlalchemy import create_engine
 import altair as alt
 from sqlalchemy import select
-db_url = st.secrets['db_url']
-
-
-# Connect
-import sqlalchemy
-engine = sqlalchemy.create_engine(db_url)
-engine.connect()
-
-from sqlalchemy import MetaData
-meta = MetaData()
-meta.reflect(bind=engine)
 
 TIME_ZONE_DIFF = 2
+
+
+db_url = st.secrets['db_url']
+
+@st.cache(allow_output_mutation=True)
+def connect_to_database():
+    # Connect
+    import sqlalchemy
+    engine = sqlalchemy.create_engine(db_url)
+    engine.connect()
+
+    from sqlalchemy import MetaData
+    meta = MetaData()
+    meta.reflect(bind=engine)
+
+    return engine, meta
+
+engine, meta = connect_to_database()
+
+
 
 if False:
     for table in meta.tables:
