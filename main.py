@@ -15,6 +15,7 @@ import altair as alt
 from sqlalchemy import select
 db_url = st.secrets['db_url']
 
+
 # Connect
 import sqlalchemy
 engine = sqlalchemy.create_engine(db_url)
@@ -232,6 +233,7 @@ df = df.groupby('semester')['count'].sum()
 st.bar_chart(df)
 
 
+
 # Plot the degree type from the table.
 st.title('Degree of applicants')
 st.write('''
@@ -243,11 +245,40 @@ conn = engine.connect()
 s = select([meta.tables['api_appform'].c.degree])
 result = conn.execute(s)
 degree_types = [x['degree'] for x in result]
+print("degree_types:", degree_types)
 
 df = pd.DataFrame(degree_types, columns=['degree'])
 df['count'] = 1
 df = df.groupby('degree')['count'].sum()
 st.bar_chart(df)
+
+
+
+# Plot the degree together with the semester.
+st.title('Degree and semester of applicants')
+st.write('''
+The degree and semester of applicants.
+''')
+
+# get the degree and semester in one query.
+conn = engine.connect()
+s = select([meta.tables['api_appform'].c.degree, meta.tables['api_appform'].c.semester])
+result = conn.execute(s)
+degree_semesters = [(x['degree'], x['semester']) for x in result]
+print("degree_semesters:", degree_semesters)
+
+
+degree_semester_joined = []
+for degree_semester in degree_semesters:
+    degree_semester_joined.append(degree_semester[0] + ' - ' + degree_semester[1])
+
+df = pd.DataFrame(degree_semester_joined, columns=['degree_semester'])
+df['count'] = 1
+df = df.groupby('degree_semester')['count'].sum()
+st.bar_chart(df)
+
+
+
 
 
 # Plot the university type from the table.
