@@ -215,22 +215,29 @@ df = df.groupby('hours')['count'].sum()
 st.bar_chart(df)
 
 
+
 # Plot the semester type from the table.
 st.title('Semester of applicants')
 st.write('''
 The semester of applicants.
 ''')
 
-from sqlalchemy import func
+# get the degree and semester in one query.
 conn = engine.connect()
-s = select([meta.tables['api_appform'].c.semester])
+s = select([meta.tables['api_appform'].c.degree, meta.tables['api_appform'].c.semester])
 result = conn.execute(s)
-semester_types = [x['semester'] for x in result]
+degree_semesters = [(x['degree'], x['semester']) for x in result]
 
-df = pd.DataFrame(semester_types, columns=['semester'])
+
+degree_semester_joined = []
+for degree_semester in degree_semesters:
+    degree_semester_joined.append(degree_semester[0] + ' - ' + degree_semester[1])
+
+df = pd.DataFrame(degree_semester_joined, columns=['degree_semester'])
 df['count'] = 1
-df = df.groupby('semester')['count'].sum()
+df = df.groupby('degree_semester')['count'].sum()
 st.bar_chart(df)
+
 
 
 
@@ -245,36 +252,10 @@ conn = engine.connect()
 s = select([meta.tables['api_appform'].c.degree])
 result = conn.execute(s)
 degree_types = [x['degree'] for x in result]
-print("degree_types:", degree_types)
 
 df = pd.DataFrame(degree_types, columns=['degree'])
 df['count'] = 1
 df = df.groupby('degree')['count'].sum()
-st.bar_chart(df)
-
-
-
-# Plot the degree together with the semester.
-st.title('Degree and semester of applicants')
-st.write('''
-The degree and semester of applicants.
-''')
-
-# get the degree and semester in one query.
-conn = engine.connect()
-s = select([meta.tables['api_appform'].c.degree, meta.tables['api_appform'].c.semester])
-result = conn.execute(s)
-degree_semesters = [(x['degree'], x['semester']) for x in result]
-print("degree_semesters:", degree_semesters)
-
-
-degree_semester_joined = []
-for degree_semester in degree_semesters:
-    degree_semester_joined.append(degree_semester[0] + ' - ' + degree_semester[1])
-
-df = pd.DataFrame(degree_semester_joined, columns=['degree_semester'])
-df['count'] = 1
-df = df.groupby('degree_semester')['count'].sum()
 st.bar_chart(df)
 
 
