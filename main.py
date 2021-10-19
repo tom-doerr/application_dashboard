@@ -19,7 +19,7 @@ TIME_ZONE_DIFF = 2
 
 db_url = st.secrets['db_url']
 
-# @st.cache(allow_output_mutation=True)
+@st.cache(allow_output_mutation=True)
 def connect_to_database():
     # Connect
     import sqlalchemy
